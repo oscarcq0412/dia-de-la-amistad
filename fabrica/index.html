@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dedicatoria Estelar</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: black;
+      color: white;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .contenido {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      animation: fadeIn 3s ease-in-out;
+    }
+
+h1 {
+  font-size: 1.3em;
+  margin: 0 auto 30px auto; /* centrado horizontalmente */
+  text-shadow: 0 0 10px #fff, 0 0 20px #00f, 0 0 30px #0ff;
+  max-width: 90%;
+  line-height: 1.6;
+  text-align: center; /* por si acaso */
+}
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      background: #0ff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 0 15px #0ff;
+    }
+
+    button:hover {
+      background: #00f;
+      color: white;
+      box-shadow: 0 0 25px #00f;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -60%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="espacio"></canvas>
+
+  <!-- MÚSICA DE FONDO -->
+  <audio autoplay loop>
+    <source src="hachiko.mp3" type="audio/mpeg">
+    Tu navegador no soporta audio HTML5.
+  </audio>
+
+  <div class="contenido">
+    <h1>Para ti Fabri, que con tan solo escucharte alegras mis días.<br><br> 
+      Quiero agradecerte por estar siempre, por escucharme sin juzgar, por abrazar con 
+      el alma y por regalarme tu hermosa y sincera amistad, incondicionalmente.<br><br>
+      Eres esa persona que la vida me dio como un regalo inesperado y que con el 
+      tiempo se convirtió en una parte esencial de mi vida. Nunca cambies, porque 
+      personas como tú hacen del mundo un lugar mucho más bonito.🌟</h1>
+    <button onclick="location.href='rosas.html'">Ver sorpresa...</button>
+  </div>
+
+  <script>
+    // Fondo animado de estrellas y cometas
+    const canvas = document.getElementById("espacio");
+    const ctx = canvas.getContext("2d");
+    let estrellas = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      // Reinicializar estrellas cuando cambie el tamaño
+      inicializarEstrellas();
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+
+    function inicializarEstrellas() {
+      estrellas = [];
+      for (let i = 0; i < 300; i++) {
+        estrellas.push({
+          // Coordenadas centradas en el origen, distribución simétrica
+          x: (Math.random() - 0.5) * 2000,
+          y: (Math.random() - 0.5) * 2000,
+          z: Math.random() * 1000 + 1,
+          r: Math.random() * 1.5 + 0.5
+        });
+      }
+    }
+
+    inicializarEstrellas();
+
+    function animar() {
+      // Fondo con efecto de desvanecimiento suave
+      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < estrellas.length; i++) {
+        let estrella = estrellas[i];
+        
+        // Mover estrella hacia adelante (efecto 3D)
+        estrella.z -= 2;
+        
+        // Reiniciar estrella cuando llegue muy cerca
+        if (estrella.z <= 0) {
+          estrella.x = (Math.random() - 0.5) * 2000;
+          estrella.y = (Math.random() - 0.5) * 2000;
+          estrella.z = 1000;
+        }
+
+        // Proyección 3D mejorada
+        let k = 200.0 / estrella.z;
+        let px = estrella.x * k + canvas.width / 2;
+        let py = estrella.y * k + canvas.height / 2;
+
+        // Verificar si está dentro de la pantalla
+        if (px >= -50 && px < canvas.width + 50 && py >= -50 && py < canvas.height + 50) {
+          let size = estrella.r * k;
+          
+          // Efecto de brillo y velocidad
+          let alpha = Math.min(1, (1000 - estrella.z) / 300);
+          let brightness = Math.min(255, size * 100);
+          
+          ctx.beginPath();
+          ctx.arc(px, py, Math.max(0.5, size), 0, Math.PI * 2);
+          
+          // Color con transparencia basada en la distancia
+          ctx.fillStyle = `rgba(${brightness}, ${brightness}, 255, ${alpha})`;
+          ctx.fill();
+          
+          // Efecto de estela para estrellas rápidas
+          if (size > 2) {
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            let trailX = px - (estrella.x * k * 0.1);
+            let trailY = py - (estrella.y * k * 0.1);
+            ctx.lineTo(trailX, trailY);
+            ctx.strokeStyle = `rgba(${brightness}, ${brightness}, 255, ${alpha * 0.3})`;
+            ctx.lineWidth = size * 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(animar);
+    }
+
+    animar();
+  </script>
+</body>
+</html>
